@@ -33,7 +33,7 @@ export async function POST(request: Request) {
 // GET: Listar Transações
 export async function GET(request: Request) {
   try {
-    const userId = await getCurrentUserId(); // Garante que está logado
+    await getCurrentUserId(); // Garante que está logado
     const { searchParams } = new URL(request.url);
     const workspaceId = searchParams.get('workspaceId');
 
