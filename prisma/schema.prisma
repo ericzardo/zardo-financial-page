@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(uuid())
+  name       String
+  email      String   @unique
+  password   String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  workspaces Workspace[]
+
+  @@map("users")
+}
+
+model Workspace {
+  id         String   @id @default(uuid())
+  name       String
+  currency   String   @default("BRL")
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  user_id    String
+
+  // Relacionamentos
+  buckets      Bucket[]
+  transactions Transaction[]
+  user         User          @relation(fields: [user_id], references: [id])
+
+  @@map("workspaces")
+}
+
+model Bucket {
+  id                    String   @id @default(uuid())
+  workspace_id          String
+  name                  String
+  allocation_percentage Decimal  @db.Decimal(5, 2)
+  current_balance       Decimal  @default(0.00) @db.Decimal(10, 2)
+  total_spent           Decimal  @default(0.00) @db.Decimal(10, 2)
+  is_default            Boolean  @default(false)
+  created_at            DateTime @default(now())
+  updated_at            DateTime @updatedAt
+
+  workspace    Workspace     @relation(fields: [workspace_id], references: [id])
+  transactions Transaction[]
+
+  @@index([workspace_id])
+  @@map("buckets")
+}
+
+model Transaction {
+  id           String          @id @default(uuid())
+  workspace_id String
+  bucket_id    String?
+  amount       Decimal         @db.Decimal(10, 2)
+  type         TransactionType
+  description  String?
+  date         DateTime        @default(now())
+  created_at   DateTime        @default(now())
+
+  workspace Workspace @relation(fields: [workspace_id], references: [id])
+  bucket    Bucket?   @relation(fields: [bucket_id], references: [id])
+
+  @@index([workspace_id])
+  @@index([bucket_id])
+  @@index([date])
+  @@map("transactions")
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
