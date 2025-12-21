@@ -1,44 +1,213 @@
 @import "tailwindcss";
-@import "@zardo/ui-kit/theme.css";
+
+@plugin "tailwindcss-animate";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-sidebar: var(--sidebar-background);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-finza-navy: var(--finza-deep-navy);
+  --color-finza-brand: var(--finza-brand);
+  --color-finza-highlight: var(--finza-highlight);
+  --color-finza-success: var(--finza-success);
+  --color-finza-warning: var(--finza-warning);
+
+  --font-sans: "Poppins", system-ui, sans-serif;
+
+  --animate-finza-fade-in: finza-fade-in 0.3s ease-out;
+
+  @keyframes finza-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+:root {
+  --radius: 0.75rem;
+
+  --background: hsl(240 100% 99%);
+  --foreground: hsl(226 60% 10%);
+
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(226 60% 10%);
+
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(226 60% 10%);
+
+  --primary: hsl(285 100% 24%);
+  --primary-foreground: hsl(0 0% 100%);
+
+  --secondary: hsl(270 100% 98%);
+  --secondary-foreground: hsl(268 100% 23%);
+
+  --muted: hsl(240 20% 96%);
+  --muted-foreground: hsl(226 20% 45%);
+
+  --accent: hsl(274 82% 61%);
+  --accent-foreground: hsl(0 0% 100%);
+
+  --destructive: hsl(0 84% 60%);
+  --destructive-foreground: hsl(0 0% 100%);
+
+  --border: hsl(240 20% 92%);
+  --input: hsl(240 20% 92%);
+  --ring: hsl(285 100% 24%);
+
+  --sidebar-background: hsl(0 0% 100%);
+  --sidebar-foreground: hsl(226 60% 10%);
+  --sidebar-primary: hsl(285 100% 24%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(260 100% 95%);
+  --sidebar-accent-foreground: hsl(285 100% 24%);
+  --sidebar-border: hsl(240 20% 94%);
+  --sidebar-ring: hsl(285 100% 24%);
+
+  --finza-deep-navy: hsl(226 60% 10%);
+  --finza-brand: hsl(268 100% 23%);
+  --finza-highlight: hsl(274 82% 61%);
+  --finza-success: hsl(160 84% 39%);
+  --finza-warning: hsl(38 92% 50%);
+  --sidebar: hsl(0 0% 98%);
+}
+
+.dark {
+  --background: hsl(226 60% 10%);
+  --foreground: hsl(240 100% 99%);
+  --card: hsl(226 50% 14%);
+  --card-foreground: hsl(240 100% 99%);
+  --popover: hsl(226 50% 14%);
+  --popover-foreground: hsl(240 100% 99%);
+  --primary: hsl(274 82% 61%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(226 40% 18%);
+  --secondary-foreground: hsl(240 100% 99%);
+  --muted: hsl(226 40% 18%);
+  --muted-foreground: hsl(240 20% 70%);
+  --accent: hsl(285 100% 24%);
+  --accent-foreground: hsl(0 0% 100%);
+  --destructive: hsl(0 62% 30%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(226 40% 20%);
+  --input: hsl(226 40% 20%);
+  --ring: hsl(274 82% 61%);
+
+  --sidebar-background: hsl(226 50% 12%);
+  --sidebar-foreground: hsl(240 100% 99%);
+  --sidebar-primary: hsl(274 82% 61%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(226 40% 18%);
+  --sidebar-accent-foreground: hsl(240 100% 99%);
+  --sidebar-border: hsl(226 40% 18%);
+  --sidebar-ring: hsl(274 82% 61%);
+  --sidebar: hsl(240 5.9% 10%);
+}
 
 @layer base {
   * {
-    user-select: none;
+    @apply border-border outline-ring/50;
   }
 
   html {
-    font-family: var(--font-poppins), sans-serif;
-    overscroll-behavior: none;
+    font-family: var(--font-poppins), system-ui, sans-serif;
+    @apply overscroll-none;
   }
 
   body {
-    overscroll-behavior: none;
+    @apply bg-background text-foreground overscroll-none antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight text-foreground;
+  }
+
+  a, button, [role="button"], input, select, textarea, .card, .group {
+    @apply transition-all duration-300 ease-in-out;
   }
 }
 
 @layer components {
-  .section-heading {
-    @apply text-3xl md:text-4xl lg:text-5xl font-bold mb-6 md:mb-8 leading-16;
+  .finza-gradient {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
   }
 
-  .text-gradient {
-    @apply bg-gradient-to-r from-brand-purpleDeep via-brand-purple to-brand-purpleDeep bg-clip-text text-transparent;
-    will-change: background-position;
+  .finza-gradient-text {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .finza-card-hover {
+    @apply transition-all duration-200 hover:shadow-lg hover:border-primary/20 hover:-translate-y-0.5;
+  }
+
+  .finza-fade-in {
+    @apply animate-finza-fade-in;
   }
 
   .glass {
     @apply backdrop-blur-md bg-white/60 border border-white/20 shadow-sm;
     will-change: transform, opacity;
   }
-  
+
   .glass-card {
     @apply backdrop-blur-lg bg-white/80 border border-white/30 shadow-md hover:shadow-lg transition-shadow duration-300;
     will-change: transform, opacity, box-shadow;
   }
 }
 
-.mask-gradient {
-  -webkit-mask-image: linear-gradient(to right, transparent, white 20%, white 80%, transparent);
-  mask-image: linear-gradient(to right, transparent, white 20%, white 80%, transparent);
-  will-change: mask-image;
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }

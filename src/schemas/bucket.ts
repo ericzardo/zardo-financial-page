@@ -1,15 +1,24 @@
 import { z } from "zod";
 
-export const createBucketSchema = z.object({
-  workspaceId: z.string().uuid("ID do workspace inválido"),
-  name: z.string().min(1, "O nome do bucket é obrigatório"),
-  percentage: z.coerce.number().min(0).max(100).default(0),
-  isDefault: z.boolean().optional().default(false),
+const baseBucketSchema = z.object({
+  name: z.string().trim().min(1, "O nome do bucket é obrigatório"),
+  percentage: z.number("Informe um número válido")
+    .min(0, "A porcentagem deve ser entre 0 e 100")
+    .max(100, "A porcentagem deve ser entre 0 e 100"),
+  isDefault: z.boolean().default(false),
 });
 
-export const updateBucketSchema = createBucketSchema
-  .omit({ workspaceId: true })
-  .partial();
+export const bucketFormSchema = baseBucketSchema;
 
+export const createBucketSchema = baseBucketSchema.extend({
+  workspaceId: z.string().uuid("ID do workspace inválido"),
+});
+
+export const updateBucketSchema = baseBucketSchema.partial().extend({
+  id: z.string(),
+  workspaceId: z.string(),
+});
+
+export type BucketFormData = z.infer<typeof bucketFormSchema>;
 export type CreateBucketData = z.infer<typeof createBucketSchema>;
 export type UpdateBucketData = z.infer<typeof updateBucketSchema>;

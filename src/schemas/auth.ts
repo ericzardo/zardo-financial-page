@@ -1,8 +1,21 @@
 import { z } from "zod";
+import { passwordSchema } from "./user"; 
 
 export const loginSchema = z.object({
-  email: z.string().email("Formato de e-mail inválido"),
-  password: z.string().min(1, "A senha é obrigatória"),
+  email: z.string().trim().email("Digite um email válido").toLowerCase(),
+  password: z.string().min(1, "A senha é obrigatória"), 
 });
 
-export type LoginData = z.infer<typeof loginSchema>;
+export const registerSchema = z.object({
+  name: z.string().trim().min(2, "O nome deve ter pelo menos 2 caracteres"),
+  email: z.string().trim().email("Digite um email válido").toLowerCase(),
+  password: passwordSchema, 
+});
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().email("Digite um e-mail válido"),
+});
+
+export type LoginFormData = z.infer<typeof loginSchema>;
+export type RegisterFormData = z.infer<typeof registerSchema>;
+export type ForgotPasswordData = z.infer<typeof forgotPasswordSchema>;

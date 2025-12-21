@@ -3,7 +3,7 @@ import { getCurrentUserId } from "@/lib/session";
 import { handleError } from "@/handlers/api-error";
 import { handleResponse } from "@/handlers/api-response";
 import { createTransaction, listTransactions } from "@/services/transaction";
-import { createTransactionSchema } from "@/schemas/transactions";
+import { createTransactionSchema } from "@/schemas/transaction";
 
 export async function POST(request: Request) {
   try {

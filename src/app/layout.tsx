@@ -1,8 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
 
-import { Toaster } from 'react-hot-toast';
-import { SmoothScroll } from "@/providers/SmoothScroll";
+import { AppProvider } from "@/providers";
 
 import { Favicon, AppleTouchIcon, Logo192, Logo32, Logo512 } from "@zardo/ui-kit/logos"
 import "./globals.css";
@@ -18,34 +17,40 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
-  themeColor: '#000000',
+  themeColor: '#300075',
 };
 
 export const metadata: Metadata = {
-  title: "zardo",
+  title: "finza.",
   description:
-    "zardo turns ideas into cutting-edge digital solutions. We create unique experiences with top-tier technology.",
+    "Assuma o controle total das suas finanças pessoais e empresariais. Organize contas em workspaces, planeje com caixinhas e alcance sua liberdade financeira com o Finza.",
+  applicationName: "finza.",
   keywords: [
-    "zardo",
-    "technology",
-    "innovation",
-    "web development",
-    "digital solutions",
-    "zardo",
-    "AI agents",
-    "AI automation",
-    "machine learning",
-    "artificial intelligence",
+    "finanças pessoais",
+    "gestão financeira",
+    "controle de gastos",
+    "controle financeiro",
+    "investimentos",
+    "organização financeira",
+    "workspaces",
+    "caixinhas",
+    "fintech brasil",
+    "zardo.dev"
   ],
   authors: [{ name: "zardo", url: "https://zardo.dev" }],
-  creator: "zardo",
-  publisher: "zardo",
+  creator: "zardo.dev",
+  publisher: "zardo.dev",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   openGraph: {
-    title: "zardo",
+    title: "finza.",
     description:
-      "zardo turns ideas into cutting-edge digital solutions. We create unique experiences with top-tier technology.",
-    url: "https://zardo.dev",
-    siteName: "zardo",
+      "Gestão financeira simplificada e poderosa. Múltiplos workspaces, caixinhas de propósito e privacidade total.",
+    url: "https://finza.zardo.dev",
+    siteName: "finza.",
     images: [
       {
         url: "https://zardo.dev/og-image.jpg",
@@ -54,7 +59,7 @@ export const metadata: Metadata = {
         alt: "zardo",
       },
     ],
-    locale: "en_US",
+    locale: "pt_BR",
     type: "website",
   },
   icons: {
@@ -93,10 +98,9 @@ export default function RootLayout({
       <body
         className={`${poppins.variable} antialiased`}
       >
-        <SmoothScroll>
+        <AppProvider>
           {children}
-        </SmoothScroll>
-        <Toaster />
+        </AppProvider>
       </body>
     </html>
   );

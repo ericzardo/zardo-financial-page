@@ -40,7 +40,16 @@
       ],
       "@/services/*": [
         "./src/services/*"
-      ]
+      ],
+      "@/schemas/*": [
+        "./src/schemas/*"
+      ],
+      "@/contexts/*": [
+        "./src/contexts/*"
+      ],
+      "@/components/*": [
+        "./src/components/*"
+      ],
     }
   },
   "include": [

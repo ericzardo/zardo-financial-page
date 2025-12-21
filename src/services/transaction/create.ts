@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { AppError } from "@/lib/errors";
 import { Prisma } from "@prisma/client";
-import { CreateTransactionData } from "@/schemas/transactions";
+import { CreateTransactionData } from "@/schemas/transaction";
 
 interface CreateServiceProps extends CreateTransactionData {
   userId: string;
