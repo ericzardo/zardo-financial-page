@@ -15,7 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { SensitiveValue } from "./ui/sensitive-value";
+import { SensitiveValue } from "@/components/ui/sensitive-value";
 
 interface BucketCardProps {
   bucket: Bucket;
@@ -25,36 +25,40 @@ interface BucketCardProps {
   onDelete: (bucket: Bucket) => void;
 }
 
+const COLORS = [
+  "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400",
+  "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
+  "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400",
+  "bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400",
+  "bg-pink-100 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400",
+  "bg-slate-100 text-slate-600 dark:bg-slate-900/30 dark:text-slate-400",
+  "bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400",
+  "bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400",
+];
+
 export function BucketCard({ bucket, currency, index, onEdit, onDelete }: BucketCardProps) {
-  const colors = [
-    "bg-purple-100 text-purple-600",
-    "bg-blue-100 text-blue-600",
-    "bg-green-100 text-green-600",
-    "bg-orange-100 text-orange-600",
-  ];
-  const colorClass = colors[index % colors.length];
+  
+  const colorClass = COLORS[index % COLORS.length];
 
   const allocated = Number(bucket.total_allocated || 0);
   const spent = Number(bucket.total_spent || 0);
   const currentBalance = Number(bucket.current_balance || 0);
   
   const isInvestment = bucket.type === "INVESTMENT";
-
   
   let progressValue = 0;
   let isNegative = false;
   let statusMessage = "";
   let progressColorClass = "[&>*]:bg-primary";
-  let statusIcon = <Wallet className="h-6 w-6" />;
+  
+  let statusIcon = isInvestment ? <TrendingUp className="h-6 w-6" /> : <Wallet className="h-6 w-6" />;
   
   let displayLabelLeft = "Disponível";
   let displayValueLeft = currentBalance;
   let displayLabelRight = "Gasto / Limite";
 
   if (isInvestment) {
-    statusIcon = <TrendingUp className="h-6 w-6" />;
     progressValue = allocated > 0 ? (spent / allocated) * 100 : 0;
-    
     
     if (progressValue >= 100) {
       progressColorClass = "[&>*]:bg-finza-success"; 
@@ -68,21 +72,17 @@ export function BucketCard({ bucket, currency, index, onEdit, onDelete }: Bucket
     }
 
     displayLabelLeft = "Falta Aportar";
-
     displayValueLeft = currentBalance < 0 ? 0 : currentBalance; 
-    
     displayLabelRight = "Aportado / Meta";
 
   } else {
-
-    statusIcon = <Wallet className="h-6 w-6" />;
 
     progressValue = allocated > 0 ? (spent / allocated) * 100 : 0;
     isNegative = currentBalance < 0; 
 
     if (isNegative) {
       progressColorClass = "[&>*]:bg-destructive"; 
-      statusIcon = <AlertCircle className="h-6 w-6" />;
+      statusIcon = <AlertCircle className="h-6 w-6" />; 
       statusMessage = "Orçamento estourado!";
     } else if (progressValue > 85) {
       progressColorClass = "[&>*]:bg-amber-500"; 
@@ -99,9 +99,7 @@ export function BucketCard({ bucket, currency, index, onEdit, onDelete }: Bucket
 
   const iconContainerClass = (isNegative && !isInvestment)
     ? "bg-destructive/10 text-destructive"
-    : isInvestment 
-      ? "bg-blue-100 text-blue-600"
-      : colorClass;
+    : colorClass; 
 
   return (
     <Card
@@ -123,7 +121,7 @@ export function BucketCard({ bucket, currency, index, onEdit, onDelete }: Bucket
 
           <div className="flex items-center gap-2">
             {isInvestment && (
-              <Badge variant="outline" className="text-xs font-normal border-blue-200 text-blue-600 bg-blue-50">
+              <Badge variant="secondary" className="text-xs font-normal">
                 Investimento
               </Badge>
             )}

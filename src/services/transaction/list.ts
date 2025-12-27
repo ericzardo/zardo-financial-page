@@ -24,7 +24,10 @@ export async function listTransactions(workspaceId: string, userId: string) {
     where: { 
       workspace_id: workspace.id
     },
-    orderBy: { date: 'desc' },
+    orderBy: [
+      { date: 'desc' },
+      { created_at: 'desc' }
+    ],
     include: {
       bucket: { select: { name: true } }
     }

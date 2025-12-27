@@ -5,6 +5,8 @@ import { handleResponse } from "@/handlers/api-response";
 import { createTransaction, listTransactions } from "@/services/transaction";
 import { createTransactionSchema } from "@/schemas/transaction";
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   try {
     const userId = await getCurrentUserId();

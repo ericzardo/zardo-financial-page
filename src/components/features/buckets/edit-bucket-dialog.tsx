@@ -46,6 +46,7 @@ export function EditBucketDialog({ open, onOpenChange, bucket, onSuccess }: Edit
       name: "",
       allocationPercentage: 0,
       isDefault: false,
+      type: "SPENDING"
     },
   });
 
@@ -53,9 +54,9 @@ export function EditBucketDialog({ open, onOpenChange, bucket, onSuccess }: Edit
     if (bucket && open) {
       form.reset({
         name: bucket.name,
-      
         allocationPercentage: Number(bucket.allocation_percentage), 
-        isDefault: bucket.is_default || false, 
+        isDefault: bucket.is_default || false,
+        type: bucket.type
       });
     }
   }, [bucket, open, form]);
@@ -70,7 +71,6 @@ export function EditBucketDialog({ open, onOpenChange, bucket, onSuccess }: Edit
     try {
       setIsLoading(true);
 
-      // Chamada real à API
       await updateBucketRequest(bucket.id, {
         ...data,
       });
