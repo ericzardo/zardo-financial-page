@@ -37,7 +37,16 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const workspaceId = searchParams.get('workspaceId');
 
-    const validWorkspaceId = z.string().uuid("Workspace ID obrigatório").parse(workspaceId);
+    console.log("DEBUG API:", { 
+      userId, 
+      workspaceIdFromUrl: workspaceId 
+    });
+
+    if (!workspaceId) {
+       return handleResponse(null, { status: 400, message: "Workspace ID é obrigatório" });
+    }
+
+    const validWorkspaceId = z.string().uuid("Formato de ID inválido").parse(workspaceId);
 
     const buckets = await listBuckets(validWorkspaceId, userId);
 
