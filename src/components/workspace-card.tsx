@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Wallet } from "lucide-react";
+import { ArrowRight, Wallet, TrendingDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SensitiveValue } from "@/components/ui/sensitive-value";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, cn } from "@/lib/utils";
 import { Workspace } from "@/types"; 
 
 interface WorkspaceCardProps {
@@ -12,17 +12,33 @@ interface WorkspaceCardProps {
 }
 
 export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
+  const totalBalance = Number(workspace.total_balance || 0);
+  const isNegative = totalBalance < 0;
+
   return (
     <Link href={`/dashboard/${workspace.id}`}>
-      <Card className="group relative h-full overflow-hidden border-border/60 transition-all hover:border-primary/50 hover:shadow-md cursor-pointer">
+      <Card 
+        className={cn(
+          "group relative h-full overflow-hidden border-border/60 transition-all hover:shadow-md cursor-pointer",
+          isNegative ? "hover:border-destructive/50" : "hover:border-primary/50"
+        )}
+      >
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
-                <Wallet className="h-5 w-5" />
+              <div className={cn(
+                "flex h-10 w-10 items-center justify-center rounded-lg transition-colors group-hover:text-white",
+                isNegative 
+                  ? "bg-destructive/10 text-destructive group-hover:bg-destructive" 
+                  : "bg-primary/10 text-primary group-hover:bg-primary"
+              )}>
+                {isNegative ? <TrendingDown className="h-5 w-5" /> : <Wallet className="h-5 w-5" />}
               </div>
               <div>
-                <CardTitle className="text-base font-semibold group-hover:text-primary transition-colors">
+                <CardTitle className={cn(
+                  "text-base font-semibold transition-colors",
+                  isNegative ? "group-hover:text-destructive" : "group-hover:text-primary"
+                )}>
                   {workspace.name}
                 </CardTitle>
                 
@@ -41,17 +57,23 @@ export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
         <CardContent>
           <div className="space-y-1">
             <p className="text-sm text-muted-foreground">Saldo Total</p>
-            <p className="text-2xl font-bold tracking-tight">
+            <p className={cn(
+              "text-2xl font-bold tracking-tight",
+              isNegative ? "text-destructive" : "text-foreground"
+            )}>
               <SensitiveValue>
-                {/* Fallback seguro para 0 caso não venha saldo calculado */}
-                {formatCurrency(workspace.total_balance || 0, workspace.currency)}
+                {formatCurrency(totalBalance, workspace.currency)}
               </SensitiveValue>
             </p>
           </div>
         </CardContent>
-        
-        {/* Barra decorativa no fundo */}
-        <div className="absolute bottom-0 left-0 h-1 w-full bg-linear-to-r from-primary/0 via-primary/20 to-primary/0 opacity-0 transition-opacity group-hover:opacity-100" />
+
+        <div className={cn(
+          "absolute bottom-0 left-0 h-1 w-full opacity-0 transition-opacity group-hover:opacity-100",
+          isNegative 
+            ? "bg-linear-to-r from-destructive/0 via-destructive/20 to-destructive/0" 
+            : "bg-linear-to-r from-primary/0 via-primary/20 to-primary/0"
+        )} />
       </Card>
     </Link>
   );

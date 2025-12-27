@@ -6,7 +6,7 @@ interface CreateServiceProps extends CreateBucketData {
   userId: string;
 }
 
-export async function createBucket({ workspaceId, userId, name, allocationPercentage, isDefault }: CreateServiceProps) {
+export async function createBucket({ workspaceId, userId, name, allocationPercentage, isDefault, type }: CreateServiceProps) {
   const workspace = await prisma.workspace.findUnique({
     where: { id: workspaceId, user_id: userId }
   });
@@ -20,6 +20,7 @@ export async function createBucket({ workspaceId, userId, name, allocationPercen
       allocation_percentage: allocationPercentage,
       current_balance: 0,
       is_default: isDefault || false,
+      type,
     }
   });
 

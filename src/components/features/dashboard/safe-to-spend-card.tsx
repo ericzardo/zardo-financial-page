@@ -1,14 +1,14 @@
 "use client";
 
 import { memo, useMemo } from "react";
-import { ShieldCheck, Wallet, LucideIcon } from "lucide-react";
+import { Wallet, TrendingUp, LucideIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SensitiveValue } from "@/components/ui/sensitive-value";
 import { cn, formatCurrency } from "@/lib/utils";
 import { Bucket } from "@/types";
 
-export interface SafeToSpendCardProps {
+export interface OverviewCardsProps {
   buckets: Bucket[];
   currency: string;
   isLoading?: boolean;
@@ -23,61 +23,49 @@ interface StatItem {
   description: string;
 }
 
-const PROTECTED_KEYWORDS: readonly string[] = [
-  "emergência",
-  "reserva",
-  "fixo",
-  "fixed",
-  "emergency",
-  "investimento",
-] as const;
-
-const isProtectedBucket = (name: string): boolean => {
-  const lowerName = name.toLowerCase();
-  return PROTECTED_KEYWORDS.some((keyword) => lowerName.includes(keyword));
-};
-
 export const SafeToSpendCard = memo(function SafeToSpendCard({
   buckets,
   currency,
   isLoading,
-}: SafeToSpendCardProps) {
-  
-  const { protectedBalance, safeToSpend } = useMemo(() => {
-    let protected_ = 0;
-    let safe = 0;
+}: OverviewCardsProps) {
+
+  const { investmentBalance, spendingBalance } = useMemo(() => {
+    let investment = 0;
+    let spending = 0;
 
     for (const bucket of buckets) {
-      if (isProtectedBucket(bucket.name)) {
-        protected_ += bucket.current_balance;
+      const type = bucket.type || "SPENDING";
+
+      if (type === "INVESTMENT") {
+        investment += Number(bucket.total_spent || 0);
       } else {
-        safe += bucket.current_balance;
+        spending += Number(bucket.current_balance || 0);
       }
     }
 
-    return { protectedBalance: protected_, safeToSpend: safe };
+    return { investmentBalance: investment, spendingBalance: spending };
   }, [buckets]);
 
   const stats = useMemo<StatItem[]>(
     () => [
       {
-        title: "Disponível para Gastar",
-        value: formatCurrency(safeToSpend, currency),
+        title: "Disponível para Consumo",
+        value: formatCurrency(spendingBalance, currency),
         icon: Wallet,
         color: "text-finza-success",
         bgColor: "bg-finza-success/10",
-        description: "Caixas não-essenciais",
+        description: "Caixas de rotina e gastos",
       },
       {
-        title: "Reservas Protegidas",
-        value: formatCurrency(protectedBalance, currency),
-        icon: ShieldCheck,
-        color: "text-primary",
-        bgColor: "bg-primary/10",
-        description: "Emergência e fixos",
+        title: "Reservas & Investimentos",
+        value: formatCurrency(investmentBalance, currency),
+        icon: TrendingUp, 
+        color: "text-blue-600",
+        bgColor: "bg-blue-600/10",
+        description: "Acumulado para o futuro",
       },
     ],
-    [safeToSpend, protectedBalance, currency]
+    [spendingBalance, investmentBalance, currency]
   );
 
   if (isLoading) {
@@ -113,7 +101,7 @@ export const SafeToSpendCard = memo(function SafeToSpendCard({
         return (
           <Card
             key={stat.title}
-            className="border-border/60 animate-in fade-in zoom-in-95 duration-500"
+            className="border-border/60 animate-in fade-in zoom-in-95 duration-500 transition-all hover:shadow-sm"
             style={{ animationDelay: `${index * 100}ms` }}
           >
             <CardContent className="p-6">

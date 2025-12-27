@@ -17,7 +17,8 @@ export async function POST(request: Request) {
       workspaceId: data.workspaceId,
       name: data.name,
       allocationPercentage: data.allocationPercentage,
-      isDefault: data.isDefault
+      isDefault: data.isDefault,
+      type: data.type
     });
 
     return handleResponse(bucket, { 

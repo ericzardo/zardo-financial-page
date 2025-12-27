@@ -27,6 +27,12 @@ export async function getBucketById(bucketId: string) {
 
   return {
     ...bucketData,
+    allocation_percentage: Number(bucket.allocation_percentage),
+    current_balance: bucketBalance,
+    total_allocated: Number(bucket.total_allocated), 
+    total_spent: Number(bucket.total_spent),
+    type: bucket.type,
+    
     real_allocation_percentage: Number(realPercentage.toFixed(2))
   };
 }

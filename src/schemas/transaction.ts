@@ -8,7 +8,8 @@ export const transactionFormSchema = z.object({
   amount: z.number("Informe um valor numérico").min(0.01, "O valor deve ser maior que zero"),
   type: transactionTypeEnum,
   description: z.string().trim().min(1, "A descrição é obrigatória"),
-  date: z.date("Selecione uma data válida"), 
+  date: z.date("Selecione uma data válida"),
+  isAllocated: z.boolean().default(false).optional(),
 });
 
 export const createTransactionSchema = transactionFormSchema.extend({

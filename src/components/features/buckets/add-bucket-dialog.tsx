@@ -1,15 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, Wallet, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NumericFormat } from "react-number-format";
 import { Switch } from "@/components/ui/switch";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   Dialog,
   DialogContent,
@@ -30,6 +31,7 @@ import {
 
 import { bucketFormSchema, BucketData } from "@/schemas/bucket";
 import { createBucketRequest } from "@/http/buckets"; 
+import { cn } from "@/lib/utils";
 
 interface AddBucketDialogProps {
   open: boolean;
@@ -47,8 +49,11 @@ export function AddBucketDialog({ open, onOpenChange, workspaceId, onSuccess }: 
       name: "",
       allocationPercentage: 0, 
       isDefault: false,
+      type: "SPENDING",
     },
   });
+
+  const selectedType = useWatch({ control: form.control, name: "type" });
 
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) form.reset();
@@ -87,7 +92,7 @@ export function AddBucketDialog({ open, onOpenChange, workspaceId, onSuccess }: 
         <DialogHeader>
           <DialogTitle>Novo Caixa</DialogTitle>
           <DialogDescription>
-            Crie um novo caixa para organizar suas finanças.
+            Defina o objetivo deste caixa para organizar seu dinheiro.
           </DialogDescription>
         </DialogHeader>
 
@@ -96,12 +101,65 @@ export function AddBucketDialog({ open, onOpenChange, workspaceId, onSuccess }: 
             
             <FormField
               control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel>Qual o propósito deste caixa?</FormLabel>
+                  <FormControl>
+                    <ToggleGroup
+                      type="single"
+                      value={field.value}
+                      onValueChange={(val) => {
+                        if (val) field.onChange(val);
+                      }}
+                      className="grid grid-cols-2 gap-4"
+                    >
+                      <ToggleGroupItem
+                        value="SPENDING"
+                        className={cn(
+                          "h-auto py-2 flex flex-col items-center justify-center gap-3 rounded-xl border-2 cursor-pointer",
+
+                          "border-muted bg-transparent text-muted-foreground hover:border-primary/50 hover:bg-primary/5 hover:text-foreground",
+                          
+
+                          "data-[state=on]:border-primary data-[state=on]:bg-primary/10 data-[state=on]:text-primary"
+                        )}
+                      >
+                        <Wallet className="h-6 w-6" /> 
+                        <span className="font-semibold text-sm">Gastos & Contas</span>
+                      </ToggleGroupItem>
+
+                      <ToggleGroupItem
+                        value="INVESTMENT"
+                        className={cn(
+                          "h-auto py-2 flex flex-col items-center justify-center gap-3 rounded-xl border-2 cursor-pointer",
+
+                          "border-muted bg-transparent text-muted-foreground hover:border-blue-500/50 hover:bg-blue-50 hover:text-foreground",
+
+                          "data-[state=on]:border-blue-500 data-[state=on]:bg-blue-50 data-[state=on]:text-blue-700"
+                        )}
+                      >
+                        <TrendingUp className="h-6 w-6" />
+                        <span className="font-semibold text-sm">Investimento</span>
+                      </ToggleGroupItem>
+                    </ToggleGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nome</FormLabel>
+                  <FormLabel>Nome do Caixa</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ex: Emergência, Viagem..." {...field} />
+                    <Input 
+                      placeholder={selectedType === "INVESTMENT" ? "Ex: Reserva de Emergência, Ações..." : "Ex: Mercado, Lazer, Custos Fixos..."} 
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -113,9 +171,13 @@ export function AddBucketDialog({ open, onOpenChange, workspaceId, onSuccess }: 
               name="allocationPercentage"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Alocação Automática</FormLabel>
+                  <FormLabel>
+                    {selectedType === "INVESTMENT" ? "Meta de Aporte Mensal" : "Orçamento Mensal"}
+                  </FormLabel>
                   <FormDescription>
-                    Porcentagem das receitas que vai para este caixa.
+                    {selectedType === "INVESTMENT" 
+                      ? "Porcentagem da sua renda destinada a este investimento."
+                      : "Porcentagem da sua renda destinada a estes gastos."}
                   </FormDescription>
                   <FormControl>
                     <div className="relative">
@@ -148,11 +210,11 @@ export function AddBucketDialog({ open, onOpenChange, workspaceId, onSuccess }: 
               control={form.control}
               name="isDefault"
               render={({ field }) => (
-                <FormItem className="flex items-center justify-between rounded-lg border border-border p-4">
+                <FormItem className="flex items-center justify-between rounded-lg border border-border p-4 bg-muted/20">
                   <div className="space-y-0.5">
                     <FormLabel className="text-sm font-medium">Caixa Padrão</FormLabel>
-                    <FormDescription>
-                      Recebe o saldo não alocado.
+                    <FormDescription className="text-xs">
+                      Qualquer receita não alocada cairá automaticamente aqui.
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -176,7 +238,7 @@ export function AddBucketDialog({ open, onOpenChange, workspaceId, onSuccess }: 
               >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isLoading} className="cursor-pointer">
+              <Button type="submit" disabled={isLoading} className="cursor-pointer min-w-32">
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

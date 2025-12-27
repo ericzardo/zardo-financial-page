@@ -32,7 +32,6 @@ model Workspace {
   updated_at    DateTime @updatedAt
   user_id       String
 
-  // Relacionamentos
   buckets      Bucket[]
   transactions Transaction[]
   user         User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
@@ -41,15 +40,19 @@ model Workspace {
 }
 
 model Bucket {
-  id                    String   @id @default(uuid())
-  workspace_id          String
-  name                  String
-  allocation_percentage Decimal  @db.Decimal(5, 2)
-  current_balance       Decimal  @default(0.00) @db.Decimal(10, 2)
-  total_spent           Decimal  @default(0.00) @db.Decimal(10, 2)
-  is_default            Boolean  @default(false)
-  created_at            DateTime @default(now())
-  updated_at            DateTime @updatedAt
+  id           String     @id @default(uuid())
+  workspace_id String
+  name         String
+  type         BucketType @default(SPENDING)
+
+  allocation_percentage Decimal @db.Decimal(5, 2)
+  current_balance       Decimal @default(0.00) @db.Decimal(10, 2)
+  total_allocated       Decimal @default(0.00) @db.Decimal(10, 2)
+  total_spent           Decimal @default(0.00) @db.Decimal(10, 2)
+
+  is_default Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   workspace    Workspace     @relation(fields: [workspace_id], references: [id], onDelete: Cascade)
   transactions Transaction[]
@@ -67,6 +70,7 @@ model Transaction {
   description  String?
   date         DateTime        @default(now())
   created_at   DateTime        @default(now())
+  is_allocated Boolean         @default(false)
 
   workspace Workspace @relation(fields: [workspace_id], references: [id])
   bucket    Bucket?   @relation(fields: [bucket_id], references: [id])
@@ -80,4 +84,9 @@ model Transaction {
 enum TransactionType {
   INCOME
   EXPENSE
+}
+
+enum BucketType {
+  SPENDING
+  INVESTMENT
 }

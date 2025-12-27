@@ -196,6 +196,7 @@ export default function TransactionsPage() {
                 key={transaction.id}
                 transaction={transaction}
                 currency={workspace.currency}
+                onDeleteSuccess={handleTransactionCreated} 
               />
             ))
           )}

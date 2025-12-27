@@ -1,3 +1,5 @@
+export type BucketType = "SPENDING" | "INVESTMENT";
+
 export interface User {
   id: string;
   name: string;
@@ -11,10 +13,12 @@ export interface Bucket {
   workspace_id: string;
   name: string;
   allocation_percentage: number;
+  type: BucketType; 
   current_balance: number;
+  total_allocated: number;
+  total_spent: number;
   is_default: boolean;
 }
-
 export interface Workspace {
   id: string;
   name: string;
@@ -31,6 +35,7 @@ export interface Transaction {
   bucket_id?: string;
   workspace_id: string;
   created_at?: string | Date;
+  is_allocated?: boolean;
 
   bucket?: {
     id?: string;
@@ -38,14 +43,9 @@ export interface Transaction {
   } | null;
 }
 
-export interface WorkspaceWithBuckets {
-  id: string;
-  name: string;
-  currency: string;
+export interface WorkspaceWithBuckets extends Workspace {
   user_id: string;
-  created_at: Date;
-  updated_at: Date;
-  buckets: {
-    current_balance: unknown; 
-  }[];
+  created_at: Date | string;
+  updated_at: Date | string;
+  buckets: Bucket[];
 }

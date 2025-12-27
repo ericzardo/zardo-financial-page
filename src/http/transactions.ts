@@ -39,3 +39,16 @@ export async function createTransactionRequest(data: CreateTransactionData): Pro
   const result = await response.json();
   return result.data || result;
 }
+
+export async function deleteTransactionRequest(transactionId: string): Promise<void> {
+  const response = await fetch(`/api/transactions/${transactionId}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw await handleHttpError(response, "Falha ao excluir transação");
+  }
+}

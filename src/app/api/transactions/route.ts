@@ -19,7 +19,8 @@ export async function POST(request: Request) {
       amount: data.amount,
       type: data.type,
       description: data.description,
-      date: data.date ? new Date(data.date) : new Date() 
+      date: data.date ? new Date(data.date) : new Date(),
+      isAllocated: data.isAllocated 
     });
 
     return handleResponse(transaction, { 
@@ -35,7 +36,6 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
   try {
     const userId = await getCurrentUserId();
-
     const { searchParams } = new URL(request.url);
     const workspaceId = searchParams.get('workspaceId');
 

@@ -1,10 +1,10 @@
 "use client";
 
-import { PiggyBank, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, AlertCircle, TrendingUp, Wallet } from "lucide-react";
 import { Bucket } from "@/types";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { Progress } from "@/components/ui/progress"; 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -15,7 +15,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";  
 import { SensitiveValue } from "./ui/sensitive-value";
 
 interface BucketCardProps {
@@ -35,38 +34,112 @@ export function BucketCard({ bucket, currency, index, onEdit, onDelete }: Bucket
   ];
   const colorClass = colors[index % colors.length];
 
+  const allocated = Number(bucket.total_allocated || 0);
+  const spent = Number(bucket.total_spent || 0);
+  const currentBalance = Number(bucket.current_balance || 0);
+  
+  const isInvestment = bucket.type === "INVESTMENT";
+
+  
+  let progressValue = 0;
+  let isNegative = false;
+  let statusMessage = "";
+  let progressColorClass = "[&>*]:bg-primary";
+  let statusIcon = <Wallet className="h-6 w-6" />;
+  
+  let displayLabelLeft = "Disponível";
+  let displayValueLeft = currentBalance;
+  let displayLabelRight = "Gasto / Limite";
+
+  if (isInvestment) {
+    statusIcon = <TrendingUp className="h-6 w-6" />;
+    progressValue = allocated > 0 ? (spent / allocated) * 100 : 0;
+    
+    
+    if (progressValue >= 100) {
+      progressColorClass = "[&>*]:bg-finza-success"; 
+      statusMessage = "Meta de aporte batida! 🚀";
+    } else if (progressValue > 0) {
+      progressColorClass = "[&>*]:bg-primary"; 
+      statusMessage = "Em progresso...";
+    } else {
+      progressColorClass = "[&>*]:bg-amber-500"; 
+      statusMessage = "Nenhum aporte feito ainda";
+    }
+
+    displayLabelLeft = "Falta Aportar";
+
+    displayValueLeft = currentBalance < 0 ? 0 : currentBalance; 
+    
+    displayLabelRight = "Aportado / Meta";
+
+  } else {
+
+    statusIcon = <Wallet className="h-6 w-6" />;
+
+    progressValue = allocated > 0 ? (spent / allocated) * 100 : 0;
+    isNegative = currentBalance < 0; 
+
+    if (isNegative) {
+      progressColorClass = "[&>*]:bg-destructive"; 
+      statusIcon = <AlertCircle className="h-6 w-6" />;
+      statusMessage = "Orçamento estourado!";
+    } else if (progressValue > 85) {
+      progressColorClass = "[&>*]:bg-amber-500"; 
+      statusMessage = "Cuidado, perto do limite";
+    } else {
+      progressColorClass = "[&>*]:bg-finza-success"; 
+      statusMessage = "Dentro do orçamento";
+    }
+  }
+
+  const containerClass = (isNegative && !isInvestment) 
+    ? "border-destructive/50 bg-destructive/5" 
+    : "";
+
+  const iconContainerClass = (isNegative && !isInvestment)
+    ? "bg-destructive/10 text-destructive"
+    : isInvestment 
+      ? "bg-blue-100 text-blue-600"
+      : colorClass;
+
   return (
     <Card
      className={cn(
         "border-border/60 finza-card-hover animate-fade-up group relative overflow-hidden transition-all hover:shadow-md",
-        bucket.is_default && "ring-2 ring-primary/20"
+        bucket.is_default && "ring-2 ring-primary/20",
+        containerClass
       )}
     >
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
           
-          <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${colorClass}`}>
-            <PiggyBank className="h-6 w-6" />
+          <div className={cn(
+            "flex h-12 w-12 items-center justify-center rounded-2xl transition-colors",
+            iconContainerClass
+          )}>
+            {statusIcon}
           </div>
 
           <div className="flex items-center gap-2">
-            {bucket.is_default && (
-              <Badge 
-                variant="secondary" 
-                className="bg-primary/10 text-primary hover:bg-primary/20 border-none font-medium"
-              >
-                Padrão
+            {isInvestment && (
+              <Badge variant="outline" className="text-xs font-normal border-blue-200 text-blue-600 bg-blue-50">
+                Investimento
               </Badge>
             )}
+
+            <Badge variant="outline" className="text-xs font-normal text-muted-foreground border-border/50">
+              {Number(bucket.allocation_percentage)}%
+            </Badge>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer data-[state=open]:opacity-100"
+                  className="h-8 w-8 cursor-pointer text-muted-foreground hover:text-foreground"
                 >
-                  <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+                  <MoreHorizontal className="h-4 w-4" />
                   <span className="sr-only">Abrir menu</span>
                 </Button>
               </DropdownMenuTrigger>
@@ -99,24 +172,43 @@ export function BucketCard({ bucket, currency, index, onEdit, onDelete }: Bucket
 
       <CardContent className="space-y-4 pt-4">
         <div>
-          <h3 className="font-semibold text-lg leading-none tracking-tight">
+          <h3 className="font-semibold text-lg leading-none tracking-tight truncate pr-2">
             {bucket.name}
           </h3>
           <p className="text-sm text-muted-foreground mt-1">
-            {bucket.allocation_percentage}% alocado
+            {statusMessage}
           </p>
         </div>
 
         <div className="space-y-2">
           <Progress 
-            value={bucket.allocation_percentage} 
-            className="h-2" 
+            value={progressValue} 
+            className={cn("h-2 w-full", progressColorClass)} 
           />
           
           <div className="flex justify-between items-end">
-            <span className="text-2xl font-bold text-foreground">
-              <SensitiveValue>{formatCurrency(Number(bucket.current_balance), currency)}</SensitiveValue>
-            </span>
+            <div className="flex flex-col">
+               <span className="text-[10px] uppercase text-muted-foreground font-semibold">
+                 {displayLabelLeft}
+               </span>
+               <span className={cn(
+                 "text-2xl font-bold",
+                 (isNegative && !isInvestment) ? "text-destructive" : "text-foreground"
+               )}>
+                <SensitiveValue>{formatCurrency(displayValueLeft, currency)}</SensitiveValue>
+              </span>
+            </div>
+
+            <div className="text-right hidden sm:block">
+               <span className="text-[10px] uppercase text-muted-foreground font-semibold">
+                 {displayLabelRight}
+               </span>
+               <div className="text-xs font-medium text-muted-foreground">
+                 <SensitiveValue>
+                   {formatCurrency(spent, currency)} / {formatCurrency(allocated, currency)}
+                 </SensitiveValue>
+               </div>
+            </div>
           </div>
         </div>
       </CardContent>

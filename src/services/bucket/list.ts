@@ -28,6 +28,10 @@ export async function listBuckets(workspaceId: string, userId: string) {
       ...bucket,
       allocation_percentage: allocPct,
       current_balance: bucketBalance,
+      total_allocated: Number(bucket.total_allocated), 
+      total_spent: Number(bucket.total_spent),
+      type: bucket.type, 
+      
       real_allocation_percentage: Number(realPercentage.toFixed(2)),
       created_at: bucket.created_at.toISOString(),
       updated_at: bucket.updated_at.toISOString(),

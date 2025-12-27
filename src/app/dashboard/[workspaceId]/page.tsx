@@ -9,10 +9,11 @@ import { toast } from "sonner";
 
 import { MonthYearFilter } from "@/components/features/dashboard/month-year-filter";
 import { AllocationChart } from "@/components/features/dashboard/allocation-chart";
-import { SafeToSpendCard } from "@/components/features/dashboard/safe-to-spend-card";
+import { SafeToSpendCard } from "@/components/features/dashboard/safe-to-spend-card"; // Seu novo componente
 import { AddTransactionDialog } from "@/components/features/transaction/add-transaction-dialog";
 
 import { getWorkspaceByIdRequest } from "@/http/workspaces";
+import { getBucketsRequest } from "@/http/buckets";
 import { Bucket, Workspace } from "@/types";
 
 interface PageProps {
@@ -26,29 +27,39 @@ export default function DashboardPage({ params }: PageProps) {
 
   const [isLoading, setIsLoading] = useState(true);
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
-  const [buckets, setBuckets] = useState<Bucket[]>([]);
+  const [buckets, setBuckets] = useState<Bucket[]>([]); 
 
   const now = new Date();
   const [month, setMonth] = useState(now.getMonth());
   const [year, setYear] = useState(now.getFullYear());
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const wsData = await getWorkspaceByIdRequest(workspaceId);
-        setWorkspace(wsData);
-        
-      } catch (error) {
-        console.error(error);
-        toast.error("Erro ao carregar dashboard");
-      } finally {
-        setIsLoading(false);
-      }
-    };
 
-    loadData();
+  const fetchDashboardData = useCallback(async () => {
+    try {
+
+      const [wsData, bucketsData] = await Promise.all([
+        getWorkspaceByIdRequest(workspaceId),
+        getBucketsRequest(workspaceId),
+      ]);
+
+      setWorkspace(wsData);
+      setBuckets(bucketsData);
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao carregar dashboard");
+    } finally {
+      setIsLoading(false);
+    }
   }, [workspaceId]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
+
+  const handleTransactionSuccess = useCallback(() => {
+    fetchDashboardData(); 
+  }, [fetchDashboardData]);
 
   const handlePreviousMonth = useCallback(() => {
     setMonth((prev) => (prev === 0 ? 11 : prev - 1));
@@ -100,7 +111,11 @@ export default function DashboardPage({ params }: PageProps) {
         </div>
       </div>
 
-      <SafeToSpendCard buckets={buckets} currency={workspace.currency} />
+      <SafeToSpendCard 
+        buckets={buckets} 
+        currency={workspace.currency} 
+        isLoading={isLoading} 
+      />
 
       {/* Allocation Chart */}
       <Card className="border-border/60">
@@ -126,6 +141,8 @@ export default function DashboardPage({ params }: PageProps) {
         onOpenChange={handleCloseDialog}
         workspaceId={workspace.id}
         currency={workspace.currency}
+        buckets={buckets}
+        onSuccess={handleTransactionSuccess}
       />
     </div>
   );
@@ -144,8 +161,9 @@ function DashboardSkeleton() {
           <Skeleton className="h-10 w-32" />
         </div>
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-32 rounded-xl" />)}
+      <div className="grid gap-4 sm:grid-cols-2">
+         <Skeleton className="h-32 rounded-xl" />
+         <Skeleton className="h-32 rounded-xl" />
       </div>
       <Skeleton className="h-96 rounded-xl" />
     </div>
